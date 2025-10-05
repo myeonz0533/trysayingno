@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Be my date to Hamilton? 💛</title>
+    <meta name="description" content="A little question for you..." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg: #0b0b0c;
+        --card: #141417;
+        --text: #eaeaf0;
+        --muted: #b8b8c2;
+        --accent: #f2c14e; /* Hamilton gold */
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        background: radial-gradient(1200px 800px at 20% 10%, #1b1b20, var(--bg));
+        color: var(--text);
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        display: grid;
+        place-items: center;
+      }
+      .card {
+        width: min(720px, 92vw);
+        background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 20px;
+        padding: 28px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05);
+        position: relative;
+        overflow: hidden;
+      }
+      .sparkle {
+        position: absolute;
+        inset: -2px;
+        background: radial-gradient(600px 300px at 100% -10%, rgba(242,193,78,0.15), transparent),
+                    radial-gradient(550px 280px at -10% 100%, rgba(231,111,81,0.12), transparent);
+        pointer-events: none;
+      }
+      .title {
+        font-family: "Playfair Display", serif;
+        font-weight: 700;
+        font-size: clamp(32px, 5vw, 52px);
+        line-height: 1.1;
+        margin: 8px 0 12px;
+        letter-spacing: 0.2px;
+      }
+      .subtitle {
+        font-size: clamp(16px, 2.4vw, 18px);
+        color: var(--muted);
+        margin: 0 0 22px;
+      }
+      .star {
+        font-size: 40px;
+        display: inline-block;
+        transform: rotate(-8deg);
+        filter: drop-shadow(0 4px 12px rgba(242,193,78,0.35));
+      }
+      .buttons {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      button {
+        -webkit-tap-highlight-color: transparent;
+        border: 0;
+        border-radius: 14px;
+        padding: 14px 18px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease, color 180ms ease;
+      }
+      .yes {
+        background: linear-gradient(180deg, var(--accent), #e3ac2c);
+        color: #222;
+        box-shadow: 0 8px 18px rgba(242,193,78,0.35);
+      }
+      .yes:hover { transform: translateY(-1px) scale(1.02); }
+      .yes:active { transform: translateY(0); }
+      .no {
+        background: #24242a;
+        color: var(--muted);
+        border: 1px solid rgba(255,255,255,0.06);
+      }
+      .no:hover { background: #2a2a31; }
+      .note { margin-top: 16px; color: var(--muted); font-size: 14px; }
+      .hidden { display: none; }
+      .celebrate {
+        margin-top: 22px;
+        padding: 16px;
+        border-radius: 14px;
+        border: 1px dashed rgba(242,193,78,0.6);
+        background: rgba(242,193,78,0.08);
+      }
+      .confetti-piece {
+        position: fixed;
+        width: 10px;
+        height: 14px;
+        top: -20px;
+        left: 0;
+        opacity: 0.9;
+        transform: translate3d(0,-100px,0) rotate(0deg);
+        transform-origin: center;
+        will-change: transform;
+        border-radius: 2px;
+      }
+      .footer { margin-top: 20px; font-size: 13px; color: #9a9aa3; }
+      @media (prefers-reduced-motion: reduce) {
+        * { transition: none !important; animation: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card" role="main">
+      <div class="sparkle" aria-hidden="true"></div>
+      <div class="star" aria-hidden="true">★</div>
+      <h1 class="title">Will you be my date to Hamilton tomorrow at 3pm?</h1>
+      <p class="subtitle">We can get tickets, popcorn and I would love to go with you. We can grab a bite before too. — Kenth</p>
+
+      <div class="buttons">
+        <button class="yes" id="yesBtn" aria-label="Yes">Yes! 🎟️</button>
+        <button class="no" id="noBtn" aria-label="No">Hmm... not sure</button>
+      </div>
+
+      <div id="celebrate" class="celebrate hidden" role="status" aria-live="polite">
+        <strong>Yay!</strong> I can't wait. I'll text you details. If you want, tap here to message me now:
+        <div style="margin-top:10px">
+          <a id="smsLink" href="#" style="color: var(--accent); font-weight: 600; text-decoration: none;">Text me 💬</a>
+        </div>
+      </div>
+
+      <p class="note">P.S. If tomorrow doesn't work, we can pick another date—just let me know!</p>
+      <div class="footer">Made with a lot of nerves and a little bit of JavaScript.</div>
+    </main>
+
+    <script>
+      const yesBtn = document.getElementById('yesBtn');
+      const noBtn = document.getElementById('noBtn');
+      const celebrate = document.getElementById('celebrate');
+      const smsLink = document.getElementById('smsLink');
+
+      // Phone converted to E.164 (+63 for PH). Original: 09260749222
+      const phone = '+639260749222';
+      const msg = encodeURIComponent("Yes Kenth, let's go to Hamilton tomorrow at 3pm! ✨");
+      smsLink.href = `sms:${phone}?&body=${msg}`;
+
+      function randomBetween(min, max) { return Math.random() * (max - min) + min; }
+
+      function dropConfetti() {
+        const colors = ['#f2c14e', '#e76f51', '#2a9d8f', '#a8dadc', '#e9c46a', '#f4a261'];
+        const pieces = 80;
+        const duration = 2200;
+        const body = document.body;
+
+        for (let i = 0; i < pieces; i++) {
+          const el = document.createElement('div');
+          el.className = 'confetti-piece';
+          el.style.background = colors[i % colors.length];
+          el.style.left = randomBetween(0, window.innerWidth) + 'px';
+          const rotate = randomBetween(-220, 220);
+          const fall = window.innerHeight + randomBetween(0, 200);
+          const scale = randomBetween(0.8, 1.4);
+          el.style.transform = `translate3d(0,-100px,0) rotate(${rotate}deg) scale(${scale})`;
+
+          body.appendChild(el);
+
+          el.animate([
+            { transform: `translate3d(0,-100px,0) rotate(${rotate}deg) scale(${scale})`, opacity: 0.95 },
+            { transform: `translate3d(${randomBetween(-80,80)}px, ${fall}px, 0) rotate(${rotate + randomBetween(-180, 180)}deg) scale(${scale})`, opacity: 1 }
+          ], { duration: duration + randomBetween(-300, 300), easing: 'cubic-bezier(.2,.7,.3,1)' });
+
+          setTimeout(() => el.remove(), duration + 600);
+        }
+      }
+
+      function gentlyDodge(button) {
+        const pad = 12;
+        const area = button.getBoundingClientRect();
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        let x = randomBetween(pad, vw - area.width - pad);
+        let y = randomBetween(pad, vh - area.height - pad);
+
+        // Keep it from overlapping the Yes button
+        const yesArea = yesBtn.getBoundingClientRect();
+        const overlap = !(x + area.width < yesArea.left || x > yesArea.right || y + area.height < yesArea.top || y > yesArea.bottom);
+        if (overlap) {
+          x = yesArea.right + 16;
+          y = yesArea.top - 10;
+        }
+
+        button.style.position = 'fixed';
+        button.style.left = x + 'px';
+        button.style.top = y + 'px';
+      }
+
+      let noClicks = 0;
+      noBtn.addEventListener('mouseenter', () => {
+        noClicks++;
+        gentlyDodge(noBtn);
+        const grow = Math.min(1.0 + noClicks * 0.08, 1.6);
+        yesBtn.style.transform = `scale(${grow})`;
+        yesBtn.style.boxShadow = '0 10px 22px rgba(242,193,78,0.45)';
+      });
+
+      noBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        gentlyDodge(noBtn);
+      });
+
+      yesBtn.addEventListener('click', () => {
+        celebrate.classList.remove('hidden');
+        yesBtn.disabled = true;
+        noBtn.disabled = true;
+        yesBtn.textContent = 'Yay! 🎉';
+        dropConfetti();
+      });
+    </script>
+  </body>
+</html>
